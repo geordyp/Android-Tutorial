@@ -1,10 +1,8 @@
 package com.example.frogeo.sunshine.app;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -14,42 +12,36 @@ import android.view.MenuItem;
 public class MainActivity extends ActionBarActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(LOG_TAG, "in onCreate");
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
-
-    @Override
-    protected void onStart() {
-        Log.v(LOG_TAG, "in onStart");
-        super.onStart();
+        
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
+                .commit();
+        }
     }
 
     @Override
     protected void onResume() {
-        Log.v(LOG_TAG, "in onResume");
         super.onResume();
-    }
+        String location = Utility.getPreferredLocation(this);
 
-    @Override
-    protected void onPause() {
-        Log.v(LOG_TAG, "in onPause");
-        super.onPause();
-    }
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
 
-    @Override
-    protected void onStop() {
-        Log.v(LOG_TAG, "in onStop");
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.v(LOG_TAG, "in onDestroy");
-        super.onDestroy();
+            if (null != ff) {
+                ff.onLocationChanged();
+            }
+            mLocation = location;
+        }
     }
 
     @Override
@@ -81,10 +73,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void openPreferredLocationInMap() {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String location = sharedPrefs.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
+        String location = Utility.getPreferredLocation(this);
 
         Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location)

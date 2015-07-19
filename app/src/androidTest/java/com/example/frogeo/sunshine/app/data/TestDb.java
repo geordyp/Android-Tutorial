@@ -161,14 +161,14 @@ public class TestDb extends AndroidTestCase {
                 null
         );
 
-        assertTrue( "Error: No Records returned from weather query", weatherCursor.moveToFirst() );
+        assertTrue( "Error: No Records returned from location query", weatherCursor.moveToFirst() );
 
         TestUtilities.validateCurrentRecord( "testInsertReadDb weatherEntry failed to validate", weatherCursor, weatherValues);
 
         assertFalse( "Error: More than one record returned from weather query", weatherCursor.moveToNext() );
 
         weatherCursor.close();
-        db.close();
+        dbHelper.close();
     }
 
 
